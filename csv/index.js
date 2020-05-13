@@ -24,9 +24,14 @@ const drawLineChart = () => {
 
   const yScale = d3.scaleLinear()
     .domain(d => [d3.min(sales), d3.max(sales)])
-    .range(h, 0)
+    .range([0, h])
+  
+  const scale = d3.scaleLinear()
+  .domain([130, 350])
+  .range([0, 100])
 
-    console.log(d3.min(sales))
+
+    console.log(yScale(30), 'I am here')
   const lineFn = d3.line()
     .x(d => (d.month - 20130001) / 3.25)
     .y(d => h - d.sales)
