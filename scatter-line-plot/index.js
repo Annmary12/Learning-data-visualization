@@ -60,13 +60,21 @@ const labels = svg.selectAll('text')
   .enter()
   .append('text')
   .text(function (d) {
-    return getLabels(monthlySales, 'sales', d.sales, 'minmax')
+    return getLabels(monthlySales, 'sales', d.sales, 'all')
   })
   .attr({
-    x: function (d) { return d.month * 3 - 28},
+    x: function (d) { return d.month * 3 - 28 },
     y: function (d) { return h - d.sales },
     'font-size': '12px',
     'font-family': 'monospace',
     'font-weight': 'bold',
     'text-anchor': 'start'
   })
+
+d3.select('select').on('change', () => {
+  const sel = d3.select('#selected-option').node().value
+
+  svg.selectAll('text')
+    .data(monthlySales)
+    .text(d => getLabels(monthlySales, 'sales', d.sales, sel))
+})
