@@ -3,11 +3,24 @@ import data from './MonthlySalesbyCategoryMultiple.json'
 const h = 200
 const w = 400
 const padding = 30
-
+console.log('data--->>>', data.contents)
 // for JSON, instead of doing this d3.json(jsonfile), you can load it directly because if you make a call, it will be looking for url
 data.contents.forEach(item => {
   showHeader(item)
   drawLineChart(item)
+})
+
+d3.select('select').on('change', () => {
+
+    const ds = data.contents
+    // console.log({content: data, ds}, 'ds---->>>>')
+    const sel = d3.select('#data-option').node().value
+  ds.forEach(d => {
+    // console.log(d, 'what is there-->>')
+    d.monthlySales.splice(0, d.monthlySales.length - sel)
+    // console.log({ d, sel }, 'onchange--->>>')
+   updateLineChart(d)
+  })
 })
 
 function getDate (d) {
@@ -22,38 +35,22 @@ function getDate (d) {
   return new Date(year, month, day)
 }
 
-function drawXScale (svg, ds) {
+function drawXScale (ds) {
   const minDate = getDate(ds.monthlySales[0].month)
   const maxDate = getDate(ds.monthlySales[ds.monthlySales.length - 1].month)
+  console.log({minDate, maxDate, ds }, 'drawYScale===>>>')
 
   const xScale = d3.scaleTime()
     .domain([minDate, maxDate])
     .range([padding, w - padding])
 
-  // draw the axis
-  const xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat('%b'))
-
-  // append to svg
-  svg.append('g')
-    .attr('class', 'axis')
-    .attr('transform', 'translate(0, ' + (h - padding) + ')')
-    .call(xAxis)
-
   return xScale
 }
 
-function drawYScale (svg, ds) {
+function drawYScale (ds) {
   const yScale = d3.scaleLinear()
     .domain([0, d3.max(ds.monthlySales, d => d.sales)])
     .range([h - padding, 0])
-
-  // draw the y axis
-  const yAxis = d3.axisLeft(yScale).ticks(4)
-
-  svg.append('g')
-    .attr('class', 'axis')
-    .attr('transform', 'translate(20, 0)')
-    .call(yAxis)
 
   return yScale
 }
@@ -62,9 +59,27 @@ function drawLineChart (ds) {
   const svg = d3.select('body').append('svg')
     .attr('width', w)
     .attr('height', h)
+    .attr('id', 'svg-' + ds.category)
 
-  const xScale = drawXScale(svg, ds)
-  const yScale = drawYScale(svg, ds)
+  const xScale = drawXScale(ds)
+  const yScale = drawYScale(ds)
+
+  // draw the y axis
+  const yAxis = d3.axisLeft(yScale).ticks(4)
+
+  svg.append('g')
+    .attr('class', 'y-axis')
+    .attr('transform', 'translate(20, 0)')
+    .call(yAxis)
+
+  // draw the axis
+  const xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat('%b'))
+
+  // append to svg
+  svg.append('g')
+    .attr('class', 'x-axis')
+    .attr('transform', 'translate(0, ' + (h - padding) + ')')
+    .call(xAxis)
 
   const lineFn = d3.line()
     .x(d => xScale(getDate(d.month)))
@@ -76,6 +91,7 @@ function drawLineChart (ds) {
     .attr('stroke', 'purple')
     .attr('stroke-width', 2)
     .attr('fill', 'none')
+    .attr('class', 'path-' + ds.category)
 }
 
 function showHeader (ds) {
@@ -83,4 +99,34 @@ function showHeader (ds) {
     .append('h1')
     .text(ds.category + ' Sales (2016)')
     .attr('font-size', '10px')
+}
+
+function updateLineChart (ds) {
+  console.log(ds, 'Debuging--->>>')
+  const minDate = getDate(ds.monthlySales[0].month)
+  const maxDate = getDate(ds.monthlySales[ds.monthlySales.length - 1].month)
+  console.log({ minDate, maxDate, ds }, 'drawYScale===>>>')
+
+  const xScale = d3.scaleTime()
+    .domain([minDate, maxDate])
+    .range([padding, w - padding])
+
+  const yScale = d3.scaleLinear()
+    .domain([0, d3.max(ds.monthlySales, d => d.sales)])
+    .range([h - padding, 0])
+
+  const yAxis = d3.axisLeft(yScale).ticks(4)
+  const xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat('%b')).ticks(ds.monthlySales.length - 1)
+
+  const lineFn = d3.line()
+    .x(d => xScale(getDate(d.month)))
+    .y(d => console.log(d, 'shoo--->>>') || yScale(d.sales))
+    .curve(d3.curveLinear)
+
+  const svg = d3.select('body').selectAll('svg-' + ds.category)
+
+  svg.selectAll('g.y-axis').call(yAxis)
+  svg.selectAll('g.x-axis').call(xAxis)
+console.log('.path-' + ds.category, 'which path--->>>')
+  svg.selectAll('path-'+ds.category).attr('d', lineFn(ds.monthlySales))
 }

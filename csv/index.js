@@ -25,13 +25,12 @@ const drawLineChart = () => {
   const yScale = d3.scaleLinear()
     .domain(d => [d3.min(sales), d3.max(sales)])
     .range([0, h])
-  
+
   const scale = d3.scaleLinear()
-  .domain([130, 350])
-  .range([0, 100])
+    .domain([130, 350])
+    .range([0, 100])
 
-
-    console.log(yScale(30), 'I am here')
+  console.log(yScale(30), 'I am here')
   const lineFn = d3.line()
     .x(d => (d.month - 20130001) / 3.25)
     .y(d => h - d.sales)
@@ -41,7 +40,7 @@ const drawLineChart = () => {
     .attr('d', lineFn(ds))
     .attr('stroke', 'purple')
     .attr('stroke-width', 2)
-    .attr('fill', 'none')  
+    .attr('fill', 'none')
 }
 
 const showTotal = () => {
@@ -77,5 +76,4 @@ const showTotal = () => {
     .enter().append('td')
     .text(d => d)
     .attr('width', '150px')
-
 }

@@ -50,7 +50,7 @@ const dots = svg.selectAll('circle')
   .attr({
     cx: function (d) { return d.month * 3 },
     cy: function (d) { return h - d.sales },
-    r: 5,
+    r: (d) => d.sales / 360 * 10,
     fill: function (d) { return salesKpi(d.sales) }
   })
 

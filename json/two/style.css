@@ -1,12 +1,12 @@
-.axis path, .axis  line {
+.x-axis path,.y-axis path, .x-axis line, .y-axis  line {
   fill: none;
   stroke: black;
   shape-rendering: crispEdges;
 }
 
-.axis text {
+.x-axis text, .y-acix text {
   font-family: monospace;
-  font-size: 10px;
+  font-size: 1 0px;
 }
 
 h1 {
